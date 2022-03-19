@@ -36,8 +36,17 @@
 
 using namespace Base;
 
-PyObject* Base::BaseExceptionFreeCADError = nullptr;
-PyObject* Base::BaseExceptionFreeCADAbort = nullptr;
+PyObject* Base::PyExc_FC_GeneralError = nullptr;
+PyObject* Base::PyExc_FC_FreeCADAbort = nullptr;
+PyObject* Base::PyExc_FC_XMLBaseException = nullptr;
+PyObject* Base::PyExc_FC_XMLParseException = nullptr;
+PyObject* Base::PyExc_FC_XMLAttributeError = nullptr;
+PyObject* Base::PyExc_FC_UnknownProgramOption = nullptr;
+PyObject* Base::PyExc_FC_BadFormatError = nullptr;
+PyObject* Base::PyExc_FC_BadGraphError = nullptr;
+PyObject* Base::PyExc_FC_ExpressionError = nullptr;
+PyObject* Base::PyExc_FC_ParserError = nullptr;
+PyObject* Base::PyExc_FC_CADKernelError = nullptr;
 
 typedef struct {
     PyObject_HEAD
@@ -235,7 +244,8 @@ PyObject* createWeakRef(PyObjectBase* ptr)
     static bool init = false;
     if (!init) {
        init = true;
-       PyType_Ready(&PyBaseProxyType);
+       if (PyType_Ready(&PyBaseProxyType) < 0)
+           return nullptr;
     }
 
     PyObject* proxy = ptr->baseProxy;

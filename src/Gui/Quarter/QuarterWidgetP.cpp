@@ -34,6 +34,10 @@
 #pragma warning(disable : 4267)
 #endif
 
+#include "QuarterWidgetP.h"
+#include "QuarterWidget.h"
+#include "eventhandlers/EventFilter.h"
+
 #include <QApplication>
 #include <QCursor>
 #include <QMenu>
@@ -48,12 +52,9 @@
 #include <Inventor/scxml/SoScXMLStateMachine.h>
 #include <Inventor/C/glue/gl.h>
 
-#include "QuarterWidgetP.h"
 #include "ContextMenu.h"
 #include "NativeEvent.h"
 #include "QuarterP.h"
-#include "QuarterWidget.h"
-#include "eventhandlers/EventFilter.h"
 
 
 using namespace SIM::Coin3D::Quarter;
@@ -83,7 +84,12 @@ QuarterWidgetP::QuarterWidgetP(QuarterWidget * masterptr, const QtGLWidget * sha
   clearzbuffer(true),
   clearwindow(true),
   addactions(true),
+  processdelayqueue(true),
+  currentStateMachine(nullptr),
   device_pixel_ratio(1.0),
+  transparencytypegroup(nullptr),
+  stereomodegroup(nullptr),
+  rendermodegroup(nullptr),
   contextmenu(nullptr)
 {
   this->cachecontext = findCacheContext(masterptr, sharewidget);

@@ -25,26 +25,19 @@
 #ifndef _PreComp_
 # include <QApplication>
 # include <QLocale>
-# include <QStyleFactory>
-# include <QTextStream>
-# include <QDesktopServices>
 #endif
 
 #include "DlgGeneralImp.h"
 #include "ui_DlgGeneral.h"
 #include "Action.h"
 #include "Application.h"
-#include "Command.h"
-#include "DockWindowManager.h"
-#include "MainWindow.h"
-#include "PrefWidgets.h"
-#include "Language/Translator.h"
-#include "Gui/PreferencePackManager.h"
-#include "DlgPreferencesImp.h"
-
 #include "DlgCreateNewPreferencePackImp.h"
+#include "DlgPreferencesImp.h"
 #include "DlgPreferencePackManagementImp.h"
 #include "DlgRevertToBackupConfigImp.h"
+#include "MainWindow.h"
+#include "PreferencePackManager.h"
+#include "Language/Translator.h"
 
 
 using namespace Gui::Dialog;
@@ -135,6 +128,7 @@ void DlgGeneralImp::saveSettings()
                           SetASCII("AutoloadModule", startWbName.toLatin1());
 
     ui->SubstituteDecimal->onSave();
+    ui->UseLocaleFormatting->onSave();
     ui->RecentFiles->onSave();
     ui->EnableCursorBlinking->onSave();
     ui->SplashScreen->onSave();
@@ -148,6 +142,8 @@ void DlgGeneralImp::saveSettings()
         hGrp->SetASCII("Language", current.constData());
         Translator::instance()->activateLanguage(current.constData());
     }
+    if (ui->UseLocaleFormatting->isChecked())
+        Translator::instance()->setLocale(current.constData());
 
     QVariant size = ui->toolbarIconSize->itemData(ui->toolbarIconSize->currentIndex());
     int pixel = size.toInt();
@@ -190,14 +186,15 @@ void DlgGeneralImp::loadSettings()
     ui->AutoloadModuleCombo->setCurrentIndex(ui->AutoloadModuleCombo->findData(startWbName));
 
     ui->SubstituteDecimal->onRestore();
+    ui->UseLocaleFormatting->onRestore();
     ui->RecentFiles->onRestore();
     ui->EnableCursorBlinking->onRestore();
     ui->SplashScreen->onRestore();
 
     // search for the language files
     ParameterGrp::handle hGrp = WindowParameter::getDefaultParameter()->GetGroup("General");
-    QString langToStr = QLocale::languageToString(QLocale().language());
-    QByteArray language = hGrp->GetASCII("Language", langToStr.toLatin1()).c_str();
+    auto langToStr = Translator::instance()->activeLanguage();
+    QByteArray language = hGrp->GetASCII("Language", langToStr.c_str()).c_str();
 
     int index = 1;
     TStringMap list = Translator::instance()->supportedLocales();
@@ -353,7 +350,7 @@ void DlgGeneralImp::recreatePreferencePackMenu()
         ui->PreferencePacks->setItem(row, 1, kind);
         auto button = new QPushButton(icon, tr("Apply"));
         button->setToolTip(tr("Apply the %1 preference pack").arg(QString::fromStdString(pack.first)));
-        connect(button, &QPushButton::clicked, this, [this, pack]() { onLoadPreferencePackClicked(pack.first); });
+        connect(button, &QPushButton::clicked, this, [this, &pack]() { onLoadPreferencePackClicked(pack.first); });
         ui->PreferencePacks->setCellWidget(row, 2, button);
         ++row;
     }

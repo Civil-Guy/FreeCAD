@@ -18,6 +18,9 @@ SET(Test_SRCS
 
 SET(TestData_SRCS
     TestData/basic_metadata.xml
+    TestData/bad_root_node.xml
+    TestData/bad_xml.xml
+    TestData/bad_version.xml
 )
 
 SOURCE_GROUP("" FILES ${Test_SRCS} ${TestData_SRCS})
@@ -36,7 +39,13 @@ fc_copy_sources(Test "${CMAKE_BINARY_DIR}/Mod/Test" ${Test_SRCS} ${TestData_SRCS
 INSTALL(
     FILES
         ${Test_SRCS} 
-        ${TestData_SRCS}
     DESTINATION
         Mod/Test
+)
+
+INSTALL(
+    FILES
+        ${TestData_SRCS}
+    DESTINATION
+        Mod/Test/TestData
 )

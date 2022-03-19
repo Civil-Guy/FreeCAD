@@ -24,10 +24,9 @@
 #include "PreCompiled.h"
 
 #ifndef _PreComp_
+# include <boost/algorithm/string/predicate.hpp>
 # include <QApplication>
 #endif
-
-#include <boost/algorithm/string/predicate.hpp>
 
 #include <App/Application.h>
 #include <App/Document.h>
@@ -2051,7 +2050,7 @@ PyObject *SelectionSingleton::sAddSelection(PyObject * /*self*/, PyObject *args)
         App::DocumentObjectPy* docObjPy = static_cast<App::DocumentObjectPy*>(object);
         App::DocumentObject* docObj = docObjPy->getDocumentObjectPtr();
         if (!docObj || !docObj->getNameInDocument()) {
-            PyErr_SetString(Base::BaseExceptionFreeCADError, "Cannot check invalid object");
+            PyErr_SetString(Base::PyExc_FC_GeneralError, "Cannot check invalid object");
             return nullptr;
         }
 
@@ -2069,7 +2068,7 @@ PyObject *SelectionSingleton::sAddSelection(PyObject * /*self*/, PyObject *args)
         App::DocumentObjectPy* docObjPy = static_cast<App::DocumentObjectPy*>(object);
         App::DocumentObject* docObj = docObjPy->getDocumentObjectPtr();
         if (!docObj || !docObj->getNameInDocument()) {
-            PyErr_SetString(Base::BaseExceptionFreeCADError, "Cannot check invalid object");
+            PyErr_SetString(Base::PyExc_FC_GeneralError, "Cannot check invalid object");
             return nullptr;
         }
 
@@ -2108,7 +2107,7 @@ PyObject *SelectionSingleton::sUpdateSelection(PyObject * /*self*/, PyObject *ar
     App::DocumentObjectPy* docObjPy = static_cast<App::DocumentObjectPy*>(object);
     App::DocumentObject* docObj = docObjPy->getDocumentObjectPtr();
     if (!docObj || !docObj->getNameInDocument()) {
-        PyErr_SetString(Base::BaseExceptionFreeCADError, "Cannot check invalid object");
+        PyErr_SetString(Base::PyExc_FC_GeneralError, "Cannot check invalid object");
         return nullptr;
     }
 
@@ -2138,7 +2137,7 @@ PyObject *SelectionSingleton::sRemoveSelection(PyObject * /*self*/, PyObject *ar
     App::DocumentObjectPy* docObjPy = static_cast<App::DocumentObjectPy*>(object);
     App::DocumentObject* docObj = docObjPy->getDocumentObjectPtr();
     if (!docObj || !docObj->getNameInDocument()) {
-        PyErr_SetString(Base::BaseExceptionFreeCADError, "Cannot check invalid object");
+        PyErr_SetString(Base::PyExc_FC_GeneralError, "Cannot check invalid object");
         return nullptr;
     }
 
@@ -2245,7 +2244,7 @@ PyObject *SelectionSingleton::sSetPreselection(PyObject * /*self*/, PyObject *ar
         App::DocumentObjectPy* docObjPy = static_cast<App::DocumentObjectPy*>(object);
         App::DocumentObject* docObj = docObjPy->getDocumentObjectPtr();
         if (!docObj || !docObj->getNameInDocument()) {
-            PyErr_SetString(Base::BaseExceptionFreeCADError, "Cannot check invalid object");
+            PyErr_SetString(Base::PyExc_FC_GeneralError, "Cannot check invalid object");
             return nullptr;
         }
 
@@ -2376,7 +2375,7 @@ PyObject *SelectionSingleton::sGetSelectionObject(PyObject * /*self*/, PyObject 
         return nullptr;
     }
     catch (const Base::Exception& e) {
-        PyErr_SetString(Base::BaseExceptionFreeCADError, e.what());
+        e.setPyException();
         return nullptr;
     }
 }

@@ -36,6 +36,7 @@
 #include <QMutex>
 #include <qmath.h>
 #include <qnamespace.h>
+#include <QObject>
 #include <QPointer>
 #include <QProcess>
 #include <qrect.h>
@@ -91,7 +92,6 @@
 #include <QImageWriter>
 #include <qinputdialog.h>
 #include <QItemDelegate>
-#include <QStyledItemDelegate>
 #include <QItemEditorFactory>
 #include <QKeyEvent>
 #include <qlabel.h>
@@ -100,6 +100,8 @@
 #include <QListWidget>
 #include <QLocale>
 #include <QMainWindow>
+#include <QMdiArea>
+#include <QMdiSubWindow>
 #include <qmenubar.h>
 #include <qmessagebox.h>
 #include <QMessageLogContext>
@@ -132,6 +134,7 @@
 #include <qsplitter.h>
 #include <qstatusbar.h>
 #include <qstyle.h>
+#include <QStyledItemDelegate>
 #include <qstylefactory.h>
 #include <QStyleOptionButton>
 #include <QStylePainter>
@@ -153,10 +156,6 @@
 #include <QWindow>
 #include <QWhatsThis>
 #include <QWhatsThisClickedEvent>
-#include <qwidget.h>
-#include <qobject.h>
-#include <QMdiArea>
-#include <QMdiSubWindow>
 // QtNetwork
 #include <QNetworkAccessManager>
 #include <QTcpServer>
@@ -168,6 +167,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QStackedWidget>
+#include <QWidget>
 // QtXML
 # include <QDomDocument>
 # include <QDomElement>

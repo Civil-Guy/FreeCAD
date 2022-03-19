@@ -547,24 +547,9 @@ bool DrawView::keepUpdated(void)
 //    Base::Console().Message("DV::keepUpdated() - %s\n", getNameInDocument());
     bool result = false;
 
-    bool pageUpdate = false;
-    bool force = false;
     TechDraw::DrawPage *page = findParentPage();
     if(page) {
-        pageUpdate = page->KeepUpdated.getValue();
-        force = page->forceRedraw();
-    }
-
-    if (DrawPage::GlobalUpdateDrawings() &&
-        pageUpdate)  {
-        result = true;
-    } else if (!DrawPage::GlobalUpdateDrawings() &&
-                DrawPage::AllowPageOverride()    &&
-                pageUpdate) {
-        result = true;
-    }
-    if (force) {         //when do we turn this off??
-        result = true;
+        result = page->canUpdate() || page->forceRedraw();
     }
     return result;
 }
@@ -592,6 +577,12 @@ double DrawView::prefScale(void)
     Base::Reference<ParameterGrp> hGrp = App::GetApplication().GetUserParameter()
           .GetGroup("BaseApp")->GetGroup("Preferences")->GetGroup("Mod/TechDraw/General");
     double result = hGrp->GetFloat("DefaultViewScale", 1.0); 
+    if (ScaleType.isValue("Page")) {
+        auto page = findParentPage();
+        if (page) {
+            result = page->Scale.getValue();
+        }
+    }
     return result;
 }
 

@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (c) 2009 Jürgen Riegel <juergen.riegel@web.de>              *
+ *   Copyright (c) 2022 Werner Mayer <wmayer[at]users.sourceforge.net>     *
  *                                                                         *
  *   This file is part of the FreeCAD CAx development system.              *
  *                                                                         *
@@ -20,23 +20,28 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef IISFREECADTASKPANELSCHEME_H
-#define IISFREECADTASKPANELSCHEME_H
+#include <FCGlobal.h>
 
-#include "iistaskpanelscheme.h"
+#ifndef ROBOT_GLOBAL_H
+#define ROBOT_GLOBAL_H
 
 
-class IISTASKPANEL_EXPORT iisFreeCADTaskPanelScheme : public iisTaskPanelScheme
-{
-public:
-    iisFreeCADTaskPanelScheme(QObject *parent=nullptr);
-    ~iisFreeCADTaskPanelScheme();
+// Robot
+#ifndef RobotExport
+#ifdef Robot_EXPORTS
+#  define RobotExport      FREECAD_DECL_EXPORT
+#else
+#  define RobotExport      FREECAD_DECL_IMPORT
+#endif
+#endif
 
-    static iisTaskPanelScheme* defaultScheme();
+// RobotGui
+#ifndef RobotGuiExport
+#ifdef RobotGui_EXPORTS
+#  define RobotGuiExport   FREECAD_DECL_EXPORT
+#else
+#  define RobotGuiExport   FREECAD_DECL_IMPORT
+#endif
+#endif
 
-protected:
-    static iisFreeCADTaskPanelScheme *myDefaultXPScheme;
-    QPixmap drawFoldIcon(const QPalette&) const;
-};
-
-#endif // IISFREECADTASKPANELSCHEME_H
+#endif //ROBOT_GLOBAL_H

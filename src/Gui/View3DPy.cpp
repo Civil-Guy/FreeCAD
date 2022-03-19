@@ -22,12 +22,19 @@
 
 #include "PreCompiled.h"
 
-#ifndef __InventorAll__
-# include "InventorAll.h"
+#ifndef _PreComp_
 # include <QColor>
 # include <QDir>
 # include <QFileInfo>
 # include <QImage>
+
+# include <Inventor/SoPickedPoint.h>
+# include <Inventor/actions/SoWriteAction.h>
+# include <Inventor/annex/HardCopy/SoVectorizePSAction.h>
+# include <Inventor/draggers/SoDragger.h>
+# include <Inventor/nodes/SoCamera.h>
+# include <Inventor/nodes/SoOrthographicCamera.h>
+# include <Inventor/nodes/SoPerspectiveCamera.h>
 #endif
 
 #include <App/Application.h>
@@ -1321,7 +1328,7 @@ Py::Object View3DInventorPy::dumpNode(const Py::Tuple& args)
 }
 
 //FIXME: Once View3DInventor inherits from PropertyContainer we can use PropertyEnumeration.
-const char* StereoTypeEnums[]= {"None","Anaglyph","QuadBuffer","InterleavedRows","InterleavedColumns",NULL};
+const char* StereoTypeEnums[]= {"Mono","Anaglyph","QuadBuffer","InterleavedRows","InterleavedColumns",nullptr};
 
 Py::Object View3DInventorPy::setStereoType(const Py::Tuple& args)
 {
@@ -1370,7 +1377,9 @@ Py::Object View3DInventorPy::getStereoType(const Py::Tuple& args)
         throw Py::Exception();
 
     try {
-        int mode = (int)(getView3DIventorPtr()->getViewer()->stereoMode());
+        int mode = int(getView3DIventorPtr()->getViewer()->stereoMode());
+        if (mode < 0 || mode > 4)
+            throw Py::ValueError("Invalid stereo mode");
         return Py::String(StereoTypeEnums[mode]);
     }
     catch (const Base::Exception& e) {

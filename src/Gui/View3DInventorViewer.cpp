@@ -20,8 +20,8 @@
  *                                                                         *
  ***************************************************************************/
 
-
 #include "PreCompiled.h"
+
 #ifndef _PreComp_
 # include <float.h>
 # ifdef FC_OS_WIN32
@@ -43,7 +43,11 @@
 # include <Inventor/actions/SoHandleEventAction.h>
 # include <Inventor/actions/SoRayPickAction.h>
 # include <Inventor/annex/HardCopy/SoVectorizePSAction.h>
+# include <Inventor/details/SoDetail.h>
+# include <Inventor/elements/SoLightModelElement.h>
+# include <Inventor/elements/SoOverrideElement.h>
 # include <Inventor/elements/SoViewportRegionElement.h>
+# include <Inventor/errors/SoDebugError.h>
 # include <Inventor/events/SoEvent.h>
 # include <Inventor/events/SoKeyboardEvent.h>
 # include <Inventor/events/SoMotion3Event.h>
@@ -72,9 +76,6 @@
 # include <QVariantAnimation>
 # include <QWheelEvent>
 #endif
-
-# include <Inventor/elements/SoLightModelElement.h>
-# include <Inventor/elements/SoOverrideElement.h>
 
 #include <App/Document.h>
 #include <App/GeoFeatureGroupExtension.h>
@@ -2873,7 +2874,7 @@ void View3DInventorViewer::animatedViewAll(int steps, int ms)
     if (sphere.getRadius() == 0)
         return;
 
-    SbVec3f direction, pos;
+    SbVec3f direction, pos(0.0f, 0.0f, 0.0f);
     camrot.multVec(SbVec3f(0, 0, -1), direction);
 
     bool isOrthographic = false;

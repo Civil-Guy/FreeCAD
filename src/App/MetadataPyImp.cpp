@@ -29,6 +29,7 @@
 #include "MetadataPy.cpp"
 
 using namespace Base;
+XERCES_CPP_NAMESPACE_USE
 
 // Returns a string which represents the object e.g. when printed in Python
 std::string MetadataPy::representation(void) const
@@ -48,48 +49,62 @@ std::string MetadataPy::representation(void) const
     return str.str();
 }
 
-PyObject* MetadataPy::PyMake(struct _typeobject*, PyObject* args, PyObject*)  // Python wrapper
+PyObject* MetadataPy::PyMake(struct _typeobject*, PyObject*, PyObject*)  // Python wrapper
 {
-    // create a new instance of MetadataPy and the Twin object 
-    const char* filename;
-    if (!PyArg_ParseTuple(args, "s", &filename))
-        return nullptr;
-    try {
-        auto md = new Metadata(filename);
-        return new MetadataPy(md);
-    }
-    catch (...) {
-        PyErr_SetString(Base::BaseExceptionFreeCADError, "Failed to create Metadata object");
-        return nullptr;
-    }
+    return new MetadataPy(nullptr);
 }
 
 // constructor method
 int MetadataPy::PyInit(PyObject* args, PyObject* /*kwd*/)
 {
     if (PyArg_ParseTuple(args, "")) {
+        setTwinPointer(new Metadata());
         return 0;
     }
 
     // Main class constructor -- takes a file path, loads the metadata from it
     PyErr_Clear();
-    const char* file;
-    if (PyArg_ParseTuple(args, "s", &file)) {
-        App::Metadata* a = new Metadata(file);
-        *(getMetadataPtr()) = *a;
-        return 0;
+    const char* filename;
+    if (PyArg_ParseTuple(args, "s", &filename)) {
+        try {
+            auto md = new Metadata(filename);
+            setTwinPointer(md);
+            return 0;
+        }
+        catch (const Base::XMLBaseException& e) {
+            e.setPyException();
+            return -1;
+        }
+        catch (const XMLException& toCatch) {
+            char* message = XMLString::transcode(toCatch.getMessage());
+            std::string what = message;
+            XMLString::release(&message);
+            PyErr_SetString(Base::PyExc_FC_XMLBaseException, what.c_str());
+            return -1;
+        }
+        catch (const DOMException& toCatch) {
+            char* message = XMLString::transcode(toCatch.getMessage());
+            std::string what = message;
+            XMLString::release(&message);
+            PyErr_SetString(Base::PyExc_FC_XMLBaseException, what.c_str());
+            return -1;
+        }
+        catch (...) {
+            PyErr_SetString(Base::PyExc_FC_GeneralError, "Failed to create Metadata object");
+            return -1;
+        }
     }
 
     // Copy constructor
-    PyErr_Clear();    
+    PyErr_Clear();
     PyObject* o;
     if (PyArg_ParseTuple(args, "O!", &(App::MetadataPy::Type), &o)) {
         App::Metadata* a = static_cast<App::MetadataPy*>(o)->getMetadataPtr();
-        *(getMetadataPtr()) = *a;
+        setTwinPointer(new Metadata(*a));
         return 0;
     }
 
-    PyErr_SetString(Base::BaseExceptionFreeCADError, "path to metadata file expected");
+    PyErr_SetString(Base::PyExc_FC_GeneralError, "metadata object or path to metadata file expected");
     return -1;
 }
 

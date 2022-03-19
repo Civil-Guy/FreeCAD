@@ -31,6 +31,25 @@ class TestMetadata(unittest.TestCase):
     def setUp(self):
         self.test_dir = os.path.join(FreeCAD.getHomePath(), "Mod", "Test", "TestData")
 
+    def test_xml_constructor(self):
+        try:
+            filename = os.path.join(self.test_dir, "basic_metadata.xml")
+            md = FreeCAD.Metadata(filename)
+        except Exception:
+            self.fail("Metadata construction from XML file failed")
+
+        with self.assertRaises(FreeCAD.Base.XMLBaseException, msg="Metadata construction from XML file with bad root node did not raise an exception"):
+            filename = os.path.join(self.test_dir, "bad_root_node.xml")
+            md = FreeCAD.Metadata(filename)
+
+        with self.assertRaises(FreeCAD.Base.XMLBaseException, msg="Metadata construction from invalid XML file did not raise an exception"):
+            filename = os.path.join(self.test_dir, "bad_xml.xml")
+            md = FreeCAD.Metadata(filename)
+
+        with self.assertRaises(FreeCAD.Base.XMLBaseException, msg="Metadata construction from XML file with invalid version did not raise an exception"):
+            filename = os.path.join(self.test_dir, "bad_version.xml")
+            md = FreeCAD.Metadata(filename)
+
     def test_toplevel_tags(self):
         filename = os.path.join(self.test_dir, "basic_metadata.xml")
         md = FreeCAD.Metadata(filename)
@@ -54,6 +73,20 @@ class TestMetadata(unittest.TestCase):
 
         tags = md.Tag
         self.assertEqual(len(tags), 2)
+
+    def test_copy_constructor(self):
+        filename = os.path.join(self.test_dir, "basic_metadata.xml")
+        md = FreeCAD.Metadata(filename)
+        copy_of_md = FreeCAD.Metadata(md)
+        self.assertEqual(md.Name, copy_of_md.Name)
+        self.assertEqual(md.Description, copy_of_md.Description)
+        self.assertEqual(md.Version, copy_of_md.Version)
+
+    def test_default_constructor(self):
+        try:
+            md = FreeCAD.Metadata()
+        except Exception:
+            self.fail("Metadata default constructor failed")
 
     def test_content_types(self):
         pass

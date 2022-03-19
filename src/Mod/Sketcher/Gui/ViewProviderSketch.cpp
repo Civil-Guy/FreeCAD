@@ -979,6 +979,19 @@ bool ViewProviderSketch::mouseButtonPressed(int Button, bool pressed, const SbVe
     return false;
 }
 
+bool ViewProviderSketch::mouseWheelEvent(int delta, const SbVec2s &cursorPos, const Gui::View3DInventorViewer* viewer)
+{
+    assert(isInEditMode());
+
+    Q_UNUSED(delta);
+    Q_UNUSED(cursorPos);
+    Q_UNUSED(viewer);
+
+    editCoinManager->drawConstraintIcons();
+
+    return true;
+}
+
 void ViewProviderSketch::editDoubleClicked(void)
 {
     if (preselection.isPreselectPointValid()) {
@@ -2571,6 +2584,11 @@ bool ViewProviderSketch::getIsShownVirtualSpace() const
 void ViewProviderSketch::drawEdit(const std::vector<Base::Vector2d> &EditCurve)
 {
     editCoinManager->drawEdit(EditCurve);
+}
+
+void ViewProviderSketch::drawEdit(const std::list<std::vector<Base::Vector2d>> &list)
+{
+    editCoinManager->drawEdit(list);
 }
 
 void ViewProviderSketch::drawEditMarkers(const std::vector<Base::Vector2d> &EditMarkers, unsigned int augmentationlevel)

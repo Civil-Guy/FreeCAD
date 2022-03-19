@@ -24,6 +24,7 @@
 
 #ifndef _PreComp_
 # include <memory>
+# include <sstream>
 #endif
 
 #include "Metadata.h"
@@ -55,6 +56,34 @@ using namespace App;
 namespace fs = boost::filesystem;
 XERCES_CPP_NAMESPACE_USE
 
+namespace MetadataInternal {
+    class XMLErrorHandler : public HandlerBase {
+        void warning(const SAXParseException& toCatch)
+        {
+            // Don't deal with warnings at all
+        }
+
+        void error(const SAXParseException& toCatch)
+        {
+            std::stringstream message;
+            message << "Error at file \"" << StrX(toCatch.getSystemId())
+                << "\", line " << toCatch.getLineNumber()
+                << ", column " << toCatch.getColumnNumber()
+                << "\n   Message: " << StrX(toCatch.getMessage()) << std::endl;
+            throw Base::XMLBaseException(message.str());
+        }
+
+        void fatalError(const SAXParseException& toCatch)
+        {
+            std::stringstream message;
+            message << "Fatal error at file \"" << StrX(toCatch.getSystemId())
+                << "\", line " << toCatch.getLineNumber()
+                << ", column " << toCatch.getColumnNumber()
+                << "\n   Message: " << StrX(toCatch.getMessage()) << std::endl;
+            throw Base::XMLBaseException(message.str());
+        }
+    };
+}
 
 Metadata::Metadata(const fs::path& metadataFile)
 {
@@ -65,7 +94,7 @@ Metadata::Metadata(const fs::path& metadataFile)
     _parser->setValidationScheme(XercesDOMParser::Val_Never);
     _parser->setDoNamespaces(true);
 
-    auto errHandler = std::make_unique<HandlerBase>();
+    auto errHandler = std::make_unique<MetadataInternal::XMLErrorHandler>();
     _parser->setErrorHandler(errHandler.get());
 
     _parser->parse(metadataFile.string().c_str());
@@ -315,7 +344,7 @@ void App::Metadata::addGenericMetadata(const std::string& tag, const Meta::Gener
 void App::Metadata::removeContentItem(const std::string& tag, const std::string& itemName)
 {
     auto tagRange = _content.equal_range(tag);
-    auto foundItem = std::find_if(tagRange.first, tagRange.second, [itemName](auto check) -> bool { return itemName == check.second.name(); });
+    auto foundItem = std::find_if(tagRange.first, tagRange.second, [&itemName](auto check) -> bool { return itemName == check.second.name(); });
     if (foundItem != tagRange.second)
         _content.erase(foundItem);
 }
@@ -686,6 +715,8 @@ Meta::Url::Url(const XERCES_CPP_NAMESPACE::DOMElement* e)
         type = UrlType::readme;
     else if (typeAttribute == "documentation")
         type = UrlType::documentation;
+    else
+        type = UrlType::website;
 
     if (type == UrlType::repository) 
         branch = StrXUTF8(e->getAttribute(XUTF8Str("branch").unicodeForm())).str;
